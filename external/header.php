@@ -1,7 +1,12 @@
 <?php
+// ini_set('error_reporting', E_ALL);
+// ini_set('display_errors', 1);
+// ini_set('display_startup_errors', 1);
 
+require_once dirname(dirname(__FILE__)) . '/xhprof_lib/kint.php';
 require_once dirname(dirname(__FILE__)) . '/xhprof_lib/defaults.php';
 require_once XHPROF_CONFIG;
+
 
 if (PHP_SAPI == 'cli') {
   $_SERVER['REMOTE_ADDR'] = null;
@@ -149,23 +154,30 @@ unset($domain);
 if ($_xhprof['ext_name'] && $_xhprof['doprofile'] === true) {
     include_once dirname(__FILE__) . '/../xhprof_lib/utils/xhprof_lib.php';
     include_once dirname(__FILE__) . '/../xhprof_lib/utils/xhprof_runs.php';
-    if (isset($ignoredFunctions) && is_array($ignoredFunctions) && !empty($ignoredFunctions)) {   
+    if (isset($ignoredFunctions) && is_array($ignoredFunctions) && !empty($ignoredFunctions)) {
         call_user_func($_xhprof['ext_name'].'_enable', $flagsCpu + $flagsMemory, array('ignored_functions' => $ignoredFunctions));
     } else {
         call_user_func($_xhprof['ext_name'].'_enable', $flagsCpu + $flagsMemory);
     }
     unset($flagsCpu);
     unset($flagsMemory);
-    
+
 }elseif(false === $_xhprof['ext_name'] && $_xhprof['display'] === true)
 {
     $message = 'Warning! Unable to profile run, tideways or xhprof extension not loaded';
     trigger_error($message, E_USER_WARNING);
 }
 unset($flagsCpu);
-    unset($flagsMemory);
+unset($flagsMemory);
+
+$_SESSION['xhprof'] = $_xhprof;
+
 function xhprof_shutdown_function() {
     global $_xhprof;
+    
+    if(empty($_xhprof))
+      $_xhprof = $_SESSION['xhprof'];
+
     require dirname(__FILE__).'/footer.php';
 }
 

@@ -7,13 +7,32 @@ function displayRuns($resultSet, $title = "")
     echo "<tbody>\n";
     while ($row = XHProfRuns_Default::getNextAssoc($resultSet))
     {
+//        d($row);
         $c_url = urlencode($row['c_url']);
         $url = urlencode($row['url']);
         $html['url'] = htmlentities($row['url'], ENT_QUOTES, 'UTF-8');
         $html['c_url'] = htmlentities($row['c_url'], ENT_QUOTES, 'UTF-8');
         $date = strtotime($row['timestamp']);
         $date = date('M d H:i:s', $date);
-        echo "\t<tr><td><a href=\"?run={$row['id']}\">$date</a><br /><span class=\"runid\">{$row['id']}</span></td><td>{$row['cpu']}</td><td>{$row['wt']}</td><td>{$row['pmu']}</td><td><a href=\"?geturl={$url}\">{$html['url']}</a></td><td><a href=\"?getcurl={$c_url}\">{$html['c_url']}</a></td></tr>\n";
+
+        echo '
+            <tr>
+                <td>
+                    <a href="?run='.$row['id'].'">'.$date.'</a>
+                    <br>
+                    <span class="runid">'.$row['id'].'</span>
+                    <br>
+                    '.$row['server name'].'</td>
+                <td>'.printTimeFormatSeconds($row['cpu']).'</td>
+                <td>'.printTimeFormatSeconds($row['wt']).'</td>
+                <td>'.printMemoryFormatMb($row['pmu']).'</td>
+                <td><a href="?geturl='.$url.'">'.$html['url'].'</a></td>
+                <td><a href="?getcurl='.$c_url.'">'.$html['c_url'].'</a></td>
+            </tr>
+        
+        ';
+
+//        echo "\t<tr><td></td><td>{}</td><td>{$row['wt']}</td><td>{$row['pmu']}</td><td><a href=\"?geturl={$url}\">{$html['url']}</a></td><td><a href=\"?getcurl={$c_url}\">{$html['c_url']}</a></td></tr>\n";
     }
     echo "</tbody>\n";
     echo "</table>\n";
@@ -26,6 +45,14 @@ $(document).ready(function()
 );
 </script>
 SORTTABLE;
+}
+
+function printTimeFormatSeconds($time){
+    return sprintf("%.2f", $time / 1000000);
+}
+
+function printMemoryFormatMb($memory){
+    return sprintf("%.2f", $memory / 1024 / 1024);
 }
 
 function printSeconds($time)
